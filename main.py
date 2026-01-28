@@ -1,3 +1,10 @@
+from fastapi import FastAPI, HTTPException
+import requests
+import os   # ✅ THIS LINE WAS MISSING
+
+app = FastAPI()
+
+APOLLO_API_KEY = os.getenv("APOLLO_API_KEY")
 WEBHOOK_URL = os.getenv("APOLLO_WEBHOOK_URL")
 
 @app.post("/enrich")
