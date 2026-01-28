@@ -1,10 +1,4 @@
-from fastapi import FastAPI, HTTPException
-import requests
-import os
-
-app = FastAPI()
-
-APOLLO_API_KEY = os.getenv("APOLLO_API_KEY")
+WEBHOOK_URL = os.getenv("APOLLO_WEBHOOK_URL")
 
 @app.post("/enrich")
 def enrich(payload: dict):
@@ -12,17 +6,24 @@ def enrich(payload: dict):
     if not email:
         raise HTTPException(status_code=400, detail="Email is required")
 
-    url = "https://api.apollo.io/v1/people/match"
+    body = {
+        "email": email,
+        "reveal_phone_number": True,
+        "webhook_url": WEBHOOK_URL
+    }
 
     headers = {
         "Content-Type": "application/json",
         "X-Api-Key": APOLLO_API_KEY
     }
 
-    body = {
-        "email": email,
-        "reveal_phone_number": True
-    }
+    response = requests.post(
+        "https://api.apollo.io/v1/people/match",
+        json=body,
+        headers=headers
+    )
 
-    response = requests.post(url, json=body, headers=headers)
-    return response.json()
+    return {
+        "status": "submitted",
+        "apollo_response": response.json()
+    }
